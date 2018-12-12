@@ -133,10 +133,11 @@ if(isset($_GET['verification'])) {
 	
 	$code = $_GET['verification'];
 	echo $code;
+	echo '<br>';
 	
 	try{
 		$req = $conn->prepare("SELECT * from users where verificationCode = ?");
-		$req->execute(array($_GET['verification']));
+		$req->execute(array($code));
 		$resultat = $req->fetch();
 	}
 	catch (PDOException $e){
@@ -145,8 +146,9 @@ if(isset($_GET['verification'])) {
 		
 	$req->closeCursor();
 	
-	echo $resultat;
-
+	echo $resultat['verificationCode'];
+	echo '<br>';
+	
 	if (isset($resultat['verificationCode']) && $resultat['isVerified'] == "0") {
 			try{
 				$value = '1';
