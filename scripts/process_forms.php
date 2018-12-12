@@ -148,8 +148,12 @@ if(isset($_GET['verification'])) {
 	
 	echo $resultat['verificationCode'];
 	echo '<br>';
+	echo $resultat['isVerified'];
+	echo '<br>';
 	
 	if (isset($resultat['verificationCode']) && $resultat['isVerified'] == "0") {
+		echo 'In the first if';
+		echo '<br>';
 			try{
 				$value = '1';
 				$uid = $resultat['id'];
