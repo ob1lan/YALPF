@@ -63,9 +63,7 @@ if(isset($_POST['registration_submit'])) {
 	$checkmail = $conn->prepare("SELECT¨* FROM users WHERE email = $email");
 	$checkmail->execute();
 	$info = $checkmail->fetch();
-	$checkmail->closeCursor();	
-	
-	include_once 'get_tableinfo.php';
+	$checkmail->closeCursor();
 	
 	$error = "none";
 	
