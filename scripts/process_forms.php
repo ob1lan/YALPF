@@ -62,7 +62,7 @@ if(isset($_POST['registration_submit'])) {
 	
 	echo 'Processed information received from from ! <br>' ;
 	
-	$checkmail = $conn->prepare("SELECT¨* FROM users WHERE email = $email");
+	$checkmail = $conn->prepare("SELECT * FROM users WHERE email = $email");
 	$checkmail->execute();
 	$info = $checkmail->fetch();
 	$checkmail->closeCursor();	
