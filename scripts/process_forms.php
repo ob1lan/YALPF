@@ -151,7 +151,7 @@ if(isset($_GET['verification'])) {
 	echo $resultat['isVerified'];
 	echo '<br>';
 	
-	if (isset($resultat['verificationCode']) && $resultat['isVerified'] == "0") {
+	if (isset($resultat['verificationCode']) && !isset($resultat['isVerified'])) {
 		echo 'In the first if';
 		echo '<br>';
 			try{
