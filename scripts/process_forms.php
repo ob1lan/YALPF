@@ -60,16 +60,12 @@ if(isset($_POST['registration_submit'])) {
 	$password1 = $_POST['register_password'];
 	$password2 = $_POST['register_password2'];
 	
-	echo 'Processed information received from from ! <br>' ;
-	
-	$checkmail = $conn->prepare("SELECT * FROM users WHERE email = $email");
-	$checkmail->execute();
+	$checkmail = $conn->prepare("SELECT * FROM users WHERE email = ?");
+	$checkmail->execute(array($email));
 	$info = $checkmail->fetch();
 	$checkmail->closeCursor();	
 	
 	$error = "none";
-	
-	echo 'Checked mail from DB for existing value ! <br>' ;
 	
 	if (isset($info['id'])) {
 		$error = "wrongEmail";
@@ -136,6 +132,8 @@ if(isset($_POST['registration_submit'])) {
 if(isset($_GET['verification'])) {
 	
 	$code = $_GET['verification'];
+	echo $code;
+	
 	try{
 		$req = $conn->prepare("SELECT * from users where verificationCode = ?");
 		$req->execute(array($_GET['verification']));
@@ -146,6 +144,8 @@ if(isset($_GET['verification'])) {
 	}
 		
 	$req->closeCursor();
+	
+	echo $resultat;
 
 	if (isset($resultat['verificationCode']) && $resultat['isVerified'] == "0") {
 			try{
