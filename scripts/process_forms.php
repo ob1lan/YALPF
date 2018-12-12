@@ -132,9 +132,6 @@ if(isset($_POST['registration_submit'])) {
 if(isset($_GET['verification'])) {
 	
 	$code = $_GET['verification'];
-	echo $code;
-	echo '<br>';
-	
 	try{
 		$req = $conn->prepare("SELECT * from users where verificationCode = ?");
 		$req->execute(array($code));
@@ -146,28 +143,21 @@ if(isset($_GET['verification'])) {
 		
 	$req->closeCursor();
 	
-	echo $resultat['verificationCode'];
-	echo '<br>';
-	echo $resultat['isVerified'];
-	echo '<br>';
-	
 	if (isset($resultat['verificationCode']) && !isset($resultat['isVerified'])) {
-		echo 'In the first if';
-		echo '<br>';
-			try{
-				$value = '1';
-				$uid = $resultat['id'];
-				$req2 = $conn->prepare("UPDATE users SET isVerified=:value WHERE id = :uid");
-				$req2->execute(array('uid' => $uid, 'value' => $value));
-				$_SESSION['isVerified'] = '1';
-				echo '<div class="alert alert-success"><strong>Succès!</strong> Votre compte est maintenant vérifié!</div>' ;
-				
-			}
-			catch (PDOException $e){
-				echo $req2 . "<br>" . $e->getMessage();
-			}
-			
-			$req2->closeCursor();
+		try{
+			$value = '1';
+			$uid = $resultat['id'];
+			$req2 = $conn->prepare("UPDATE users SET isVerified=:value WHERE id = :uid");
+			$req2->execute(array('uid' => $uid, 'value' => $value));
+			$_SESSION['isVerified'] = '1';
+			echo '<div class="alert alert-success"><strong>Succès!</strong> Votre compte est maintenant vérifié!</div>' ;
+
+		}
+		catch (PDOException $e){
+			echo $req2 . "<br>" . $e->getMessage();
+		}
+
+		$req2->closeCursor();
 	}
 	elseif (isset($resultat['verificationCode']) && $resultat['isVerified'] == "1") {
 		echo '<div class="alert alert-warning"><strong>Attention!</strong> Votre compte a déjà été vérifié</div>' ;
@@ -184,7 +174,7 @@ if(isset($_GET['activation'])) {
 	$code = $_GET['activation'];
 	try{
 		$req = $conn->prepare("SELECT * from users where activationCode = ?");
-		$req->execute(array($_GET['activation']));
+		$req->execute(array($code));
 		$resultat = $req->fetch();
 	}
 	catch (PDOException $e){
@@ -193,7 +183,7 @@ if(isset($_GET['activation'])) {
 		
 	$req->closeCursor();
 
-	if (isset($resultat['activationCode']) && $resultat['isEnabled'] == "0") {
+	if (isset($resultat['activationCode']) && !isset($resultat['isEnabled'])) {
 			try{
 				$value = '1';
 				$uid = $resultat['id'];
