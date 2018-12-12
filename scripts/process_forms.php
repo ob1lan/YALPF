@@ -60,12 +60,16 @@ if(isset($_POST['registration_submit'])) {
 	$password1 = $_POST['register_password'];
 	$password2 = $_POST['register_password2'];
 	
+	echo 'Processed information received from from ! <br>' ;
+	
 	$checkmail = $conn->prepare("SELECT¨* FROM users WHERE email = $email");
 	$checkmail->execute();
 	$info = $checkmail->fetch();
-	$checkmail->closeCursor();
+	$checkmail->closeCursor();	
 	
 	$error = "none";
+	
+	echo 'Checked mail from DB for existing value ! <br>' ;
 	
 	if (isset($info['id'])) {
 		$error = "wrongEmail";
@@ -86,48 +90,47 @@ if(isset($_POST['registration_submit'])) {
 			try {
 				$req = $conn->prepare("INSERT INTO users (email, password, name, firstname, gender, mainPhone, registration_date, verificationcode, activationcode) VALUES(:email, :pass, UCASE(:name), :firstname, :gender, :phone, CURDATE(), :verification, :activation)");
 				$req->execute(array('email' => $email, 'pass' => $pass_hache, 'name' => $name, 'firstname' => $firstname, 'gender' => $gender , 'phone' => $phone,'verification' => $verification_code, 'activation' => $activation_code));
+				//Email to user with the verification link	
+				$to = "$email";
+				$subject = "[" . "$siteName" . "]" . 'Vérification de votre adresse email';
+				$headers = "From: " . $mail_from . "\r\n";
+				$headers .= "Reply-To: ". $mail_replyto . "\r\n";
+				$headers .= "MIME-Version: 1.0\r\n";
+				$headers .= "Content-Type: text/html; charset=UTF-8\r\n";
+				$message = '<p>Bonjour, ' . $firstname . ' !</p>';
+				$message .= '<p>Merci pour votre inscription sur notre site !</p>';
+				$message .= '<p>Récapitulatif de vos informations :</p>';
+				$message .= "<p><ul><li><strong>Votre nom : </strong>$name</li><li><strong>Votre prénom : </strong>$firstname</li><li><strong>Votre email : </strong>$email</li></ul></p>";
+				$message .= "<p>Veuillez confirmer votre adresse email en utilisant le lien de vérification suivant :<br ><br /><strong><a href=\"" . $indexURL . "?verification=" . $verification_code . '">Vérifier votre compte</a></strong></p>';
+				$message .= '<p>Cordialement,</p>';
+				$message .= "<p>$siteName</p>";
+				mail($to,$subject,$message,$headers);
+				
+				//Email to admin with the activation link	
+				$to2 = "antoine@a-delrue.be";
+				$subject2 = "[" . "$siteName" . "]" . 'Nouvel utilisateur enregistré, activation nécessaire';
+				$headers2 = "From: " . $mail_from . "\r\n";
+				$headers2 .= "Reply-To: ". $mail_replyto . "\r\n";
+				$headers2 .= "MIME-Version: 1.0\r\n";
+				$headers2 .= "Content-Type: text/html; charset=UTF-8\r\n";
+				$message2 = '<p>Bonjour,</p>';
+				$message2 .= '<p>Un nouvel utilisateur s\'est inscrit sur le site.</p>';
+				$message2 .= '<p>Récapitulatif des informations du nouvel utilisateur :</p>';
+				$message2 .= "<p><ul><li><strong>Nom : </strong>$name</li><li><strong>Prénom : </strong>$firstname</li><li><strong>Email : </strong>$email</li></ul></p>";
+				$message2 .= "<p>Veuillez vérifier les données de l'utilisateur, et activer son compte utilisant le lien suivant :<br ><br /><strong><a href=\"" .$indexURL . "?activation=" . $activation_code . '">Activer le compte ' . $email . '</a></strong></p>';
+				$message2 .= '<p>Cordialement,</p>';
+				$message2 .= "<p>$siteName</p>";
+				mail($to2,$subject2,$message2,$headers2);
+					
+				$req->closeCursor();
+				echo '<div class="alert alert-success"><strong>Succès!</strong> Nous vous remercions d\'avoir créé votre compte. <br /> Nous venons de vous envoyer un e-mail afin de confirmer votre adresse. Pour activer votre compte, veuillez cliquer sur le lien contenu dans cet e-mail.</div>';	
 			}
 			catch (PDOException $e){
-			echo $req . "<br>" . $e->getMessage();
-			
-			}
-		
-			//Email to user with the verification link	
-			$to = "$email";
-			$subject = "[" . "$siteName" . "]" . 'Vérification de votre adresse email';
-			$headers = "From: " . $mail_from . "\r\n";
-			$headers .= "Reply-To: ". $mail_replyto . "\r\n";
-			$headers .= "MIME-Version: 1.0\r\n";
-			$headers .= "Content-Type: text/html; charset=UTF-8\r\n";
-			$message = '<p>Bonjour, ' . $firstname . ' !</p>';
-			$message .= '<p>Merci pour votre inscription sur notre site !</p>';
-			$message .= '<p>Récapitulatif de vos informations :</p>';
-			$message .= "<p><ul><li><strong>Votre nom : </strong>$name</li><li><strong>Votre prénom : </strong>$firstname</li><li><strong>Votre email : </strong>$email</li></ul></p>";
-			$message .= "<p>Veuillez confirmer votre adresse email en utilisant le lien de vérification suivant :<br ><br /><strong><a href=\"" . $indexURL . "?verification=" . $verification_code . '">Vérifier votre compte</a></strong></p>';
-			$message .= '<p>Cordialement,</p>';
-			$message .= "<p>$siteName</p>";
-			mail($to,$subject,$message,$headers);
-			
-			//Email to admin with the activation link	
-			$to2 = "antoine@a-delrue.be";
-			$subject2 = "[" . "$siteName" . "]" . 'Nouvel utilisateur enregistré, activation nécessaire';
-			$headers2 = "From: " . $mail_from . "\r\n";
-			$headers2 .= "Reply-To: ". $mail_replyto . "\r\n";
-			$headers2 .= "MIME-Version: 1.0\r\n";
-			$headers2 .= "Content-Type: text/html; charset=UTF-8\r\n";
-			$message2 = '<p>Bonjour,</p>';
-			$message2 .= '<p>Un nouvel utilisateur s\'est inscrit sur le site.</p>';
-			$message2 .= '<p>Récapitulatif des informations du nouvel utilisateur :</p>';
-			$message2 .= "<p><ul><li><strong>Nom : </strong>$name</li><li><strong>Prénom : </strong>$firstname</li><li><strong>Email : </strong>$email</li></ul></p>";
-			$message2 .= "<p>Veuillez vérifier les données de l'utilisateur, et activer son compte utilisant le lien suivant :<br ><br /><strong><a href=\"" .$indexURL . "?activation=" . $activation_code . '">Activer le compte ' . $email . '</a></strong></p>';
-			$message2 .= '<p>Cordialement,</p>';
-			$message2 .= "<p>$siteName</p>";
-			mail($to2,$subject2,$message2,$headers2);
-			
-			$req->closeCursor();
-			echo '<div class="alert alert-success"><strong>Succès!</strong> Nous vous remercions d\'avoir créé votre compte. <br /> Nous venons de vous envoyer un e-mail afin de confirmer votre adresse. Pour activer votre compte, veuillez cliquer sur le lien contenu dans cet e-mail.</div>';
-	}	
+			echo $req . "<br>" . $e->getMessage();			
+			}		
+	}
 }
+
 
 // VERIFICATION form handling
 if(isset($_GET['verification'])) {
