@@ -409,7 +409,7 @@ if(isset($_POST['mail_submit'])) {
 	$message = "$message_content";
 	$message .= "\r\n";
 	$message .= "\r\n";
-	$message .= 'Fraternellement,';
+	$message .= 'Cordialement,';
 	$message .= "\r\n";
 	$message .= $_SESSION['firstname'];
 	mail($to,$subject,$message,$headers);
