@@ -169,8 +169,6 @@ if(isset($_GET['verification'])) {
 
 // ACTIVATION form handling
 if(isset($_GET['activation'])) {
-	if(isset($_GET['activation'])) {
-	
 	$code = $_GET['activation'];
 	try{
 		$req = $conn->prepare("SELECT * from users where activationCode = ?");
@@ -219,7 +217,6 @@ if(isset($_GET['activation'])) {
 	else {
 		echo '<div class="alert alert-danger"><strong>Erreur!</strong> Activation du compte impossible !</div><br >';
 	}
-}
 }
 
 // UPDATE user show form
